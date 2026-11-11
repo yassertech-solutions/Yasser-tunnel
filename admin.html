@@ -1,0 +1,840 @@
+
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>YASSER TUNEL | Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --green:#16a36a;
+  --dark:#17231d;
+  --muted:#718078;
+  --line:#e5ece8;
+  --bg:#f5f8f6;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--dark);
+  font-family:Arial,sans-serif;
+}
+button,input,select,textarea {font:inherit}
+button {cursor:pointer}
+.hidden {display:none!important}
+header {
+  background:white;
+  border-bottom:1px solid var(--line);
+  padding:17px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.brand {font-size:19px;font-weight:900}
+.brand span {color:var(--green)}
+header small {color:var(--muted)}
+.container {max-width:1100px;margin:auto;padding:22px 16px}
+.login-wrap {
+  min-height:90vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.panel {
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:22px;
+  box-shadow:0 5px 25px #17231d08;
+}
+.login-box {width:100%;max-width:400px}
+h2 {margin-top:0}
+.muted {color:var(--muted);font-size:13px}
+input,select,textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  outline:none;
+  background:white;
+  margin-top:7px;
+  margin-bottom:14px;
+}
+input:focus,select:focus,textarea:focus {
+  border-color:var(--green);
+}
+textarea {min-height:90px;resize:vertical}
+label {font-size:13px;font-weight:700}
+.btn {
+  border:0;
+  border-radius:9px;
+  padding:11px 15px;
+  background:var(--green);
+  color:white;
+  font-weight:700;
+}
+.btn-dark {background:var(--dark)}
+.btn-red {background:#d94343}
+.btn-light {background:#eaf5ef;color:#14794e}
+.btn:disabled {opacity:.5;cursor:not-allowed}
+.full {width:100%}
+.top-actions {display:flex;gap:8px;align-items:center}
+.stats {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:20px;
+}
+.stat strong {font-size:27px;display:block;margin-top:8px}
+.stat small {color:var(--muted)}
+.nav {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin:18px 0;
+}
+.nav button {
+  border:1px solid var(--line);
+  background:white;
+  border-radius:9px;
+  padding:11px 15px;
+  white-space:nowrap;
+}
+.nav button.active {
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+.section {display:none}
+.section.active {display:block}
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+.table-wrap {overflow-x:auto}
+table {width:100%;border-collapse:collapse;min-width:500px}
+th,td {
+  padding:12px 9px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+th {color:var(--muted)}
+.actions {display:flex;gap:6px}
+.actions button {padding:7px 9px;font-size:12px}
+.status {
+  display:inline-block;
+  background:#e6f7ee;
+  color:#168451;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:11px;
+}
+.status.off {background:#fceaea;color:#bd3434}
+#message {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#17231d;
+  color:white;
+  padding:12px 18px;
+  border-radius:10px;
+  display:none;
+  z-index:20;
+  max-width:90%;
+  font-size:13px;
+}
+footer {
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+  font-size:12px;
+}
+@media(max-width:650px) {
+  .stats {grid-template-columns:1fr 1fr}
+  .grid {grid-template-columns:1fr}
+  header {padding:14px}
+  .container {padding:15px 12px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">YASSER <span>TUNEL</span></div>
+  <div class="top-actions">
+    <small id="adminEmail"></small>
+    <button class="btn btn-red hidden" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="panel login-box">
+    <h2>Admin Login</h2>
+    <p class="muted">YASSER TUNEL Management System</p>
+
+    <form id="loginForm">
+      <label>Email address</label>
+      <input type="email" id="email" placeholder="Admin email" required>
+
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Admin password" required>
+
+      <button class="btn full" id="loginBtn">LOGIN TO DASHBOARD</button>
+    </form>
+    <p class="muted">Powered by YASSER TECH SOLUTIONS</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<main class="container hidden" id="dashboard">
+
+  <h2>Admin Dashboard</h2>
+  <p class="muted">Manage your YASSER TUNEL platform.</p>
+
+  <div class="stats">
+    <div class="panel stat">
+      <small>Total VPNs</small>
+      <strong id="totalVPN">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Free VPNs</small>
+      <strong id="freeVPN">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Paid VPNs</small>
+      <strong id="paidVPN">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Notifications</small>
+      <strong id="totalNotifications">0</strong>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="active" data-tab="vpnSection">VPN Management</button>
+    <button data-tab="notificationSection">Notifications</button>
+  </nav>
+
+  <!-- VPN MANAGEMENT -->
+  <section class="section active" id="vpnSection">
+    <div class="grid">
+
+      <div class="panel">
+        <h3 id="vpnFormTitle">Add New VPN</h3>
+
+        <form id="vpnForm">
+          <input type="hidden" id="vpnId">
+
+          <label>VPN Name</label>
+          <input id="vpnName" required placeholder="Example: Yasser VPN">
+
+          <label>VPN Type</label>
+          <select id="vpnType">
+            <option value="Free">Free VPN</option>
+            <option value="Paid">Paid VPN</option>
+          </select>
+
+          <label>Category</label>
+          <input id="vpnCategory" placeholder="General">
+
+          <label>Platform</label>
+          <select id="vpnPlatform">
+            <option>Android</option>
+            <option>iOS</option>
+            <option>Windows</option>
+            <option>All Platforms</option>
+          </select>
+
+          <label>Price (TSh)</label>
+          <input type="number" id="vpnPrice" min="0" value="0">
+
+          <label>Description</label>
+          <textarea id="vpnDescription" placeholder="VPN details..."></textarea>
+
+          <label>VPN Image</label>
+          <input type="file" id="vpnImage" accept="image/*">
+          <p class="muted">Picha itahifadhiwa kwenye vpn-assets bucket.</p>
+
+          <label>Or Image URL</label>
+          <input type="url" id="vpnImageUrl" placeholder="https://...">
+
+          <label>Download / Information Link</label>
+          <input type="url" id="vpnDownload" placeholder="https://..." required>
+
+          <label>
+            <input type="checkbox" id="vpnActive" checked style="width:auto;margin:0 5px">
+            VPN is Active
+          </label>
+
+          <br><br>
+          <button class="btn full" id="saveVPN">SAVE VPN</button>
+          <button type="button" class="btn btn-light full hidden" id="cancelEdit" style="margin-top:8px">
+            CANCEL EDIT
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3>VPN Information</h3>
+        <p class="muted">
+          Ongeza VPN unazoruhusiwa kusambaza. Hakikisha link ni salama
+          na inaelekeza kwenye chanzo halali cha VPN.
+        </p>
+        <p class="muted">Free VPN: Bei iwe 0.</p>
+        <p class="muted">Paid VPN: Weka bei inayotakiwa.</p>
+        <p class="muted">Inactive VPN hazitaonekana kwa wageni.</p>
+      </div>
+
+    </div>
+
+    <div class="panel" style="margin-top:18px">
+      <h3>All VPNs</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vpnTable">
+            <tr><td colspan="5">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section class="section" id="notificationSection">
+    <div class="grid">
+
+      <div class="panel">
+        <h3 id="notificationFormTitle">Create Notification</h3>
+
+        <form id="notificationForm">
+          <input type="hidden" id="notificationId">
+
+          <label>Notification Title</label>
+          <input id="notificationTitle" required placeholder="New update">
+
+          <label>Message</label>
+          <textarea id="notificationMessage" required placeholder="Write your notification..."></textarea>
+
+          <label>
+            <input type="checkbox" id="notificationActive" checked style="width:auto;margin:0 5px">
+            Active Notification
+          </label>
+
+          <br><br>
+          <button class="btn full" id="saveNotification">PUBLISH NOTIFICATION</button>
+          <button type="button" class="btn btn-light full hidden" id="cancelNotificationEdit" style="margin-top:8px">
+            CANCEL EDIT
+          </button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3>Notifications</h3>
+        <p class="muted">
+          Notifications active zitaonekana kwa watumiaji wa YASSER TUNEL.
+          Unaweza kuzibadilisha au kuzifuta hapa.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="panel" style="margin-top:18px">
+      <h3>All Notifications</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="notificationTable">
+            <tr><td colspan="3">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="message"></div>
+
+<footer>POWERED BY YASSER TECH SOLUTIONS</footer>
+
+<script>
+/* SUPABASE CONNECTION */
+const SUPABASE_URL = "https://ingqthmfyufkgtsidqfv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zhoDTTBXrr9Rv4f9HwLLkg_nTrpBfWv";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let vpnRecords = [];
+let notificationRecords = [];
+let currentAdmin = null;
+
+/* HELPERS */
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[char]);
+}
+
+function toast(message) {
+  const box = $("message");
+  box.textContent = message;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 3500);
+}
+
+function setLoading(button, loading, text) {
+  button.disabled = loading;
+  button.textContent = loading ? "PLEASE WAIT..." : text;
+}
+
+/* AUTHENTICATION */
+async function checkAdmin() {
+  const {data:{session}, error} = await db.auth.getSession();
+
+  if (error || !session) {
+    showLogin();
+    return;
+  }
+
+  const {data, error:adminError} = await db
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+
+  if (adminError || !data) {
+    await db.auth.signOut();
+    showLogin();
+    toast("Akaunti hii haina ruhusa za Admin.");
+    return;
+  }
+
+  currentAdmin = session.user;
+  $("loginScreen").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  $("adminEmail").textContent = session.user.email || "Admin";
+
+  await loadDashboard();
+}
+
+function showLogin() {
+  currentAdmin = null;
+  $("loginScreen").classList.remove("hidden");
+  $("dashboard").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
+  $("adminEmail").textContent = "";
+}
+
+$("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const button = $("loginBtn");
+  setLoading(button, true, "LOGIN TO DASHBOARD");
+
+  const {error} = await db.auth.signInWithPassword({
+    email: $("email").value.trim(),
+    password: $("password").value
+  });
+
+  setLoading(button, false, "LOGIN TO DASHBOARD");
+
+  if (error) {
+    toast("Login failed: " + error.message);
+    return;
+  }
+
+  $("password").value = "";
+  await checkAdmin();
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  await db.auth.signOut();
+  showLogin();
+  toast("Umetoka kwenye Admin Dashboard.");
+});
+
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") showLogin();
+  if (event === "SIGNED_IN" && session) {
+    setTimeout(checkAdmin, 0);
+  }
+});
+
+/* NAVIGATION */
+document.querySelectorAll(".nav button").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+
+    button.classList.add("active");
+    $(button.dataset.tab).classList.add("active");
+  });
+});
+
+/* LOAD DATA */
+async function loadDashboard() {
+  await Promise.all([
+    loadVPNs(),
+    loadNotifications()
+  ]);
+}
+
+async function loadVPNs() {
+  const {data, error} = await db
+    .from("vpns")
+    .select("*")
+    .order("created_at", {ascending:false});
+
+  if (error) {
+    toast("VPN loading error: " + error.message);
+    return;
+  }
+
+  vpnRecords = data || [];
+  renderVPNs();
+  updateStats();
+}
+
+async function loadNotifications() {
+  const {data, error} = await db
+    .from("notifications")
+    .select("*")
+    .order("created_at", {ascending:false});
+
+  if (error) {
+    toast("Notification loading error: " + error.message);
+    return;
+  }
+
+  notificationRecords = data || [];
+  renderNotifications();
+  updateStats();
+}
+
+function updateStats() {
+  $("totalVPN").textContent = vpnRecords.length;
+  $("freeVPN").textContent = vpnRecords.filter(v => v.type === "Free").length;
+  $("paidVPN").textContent = vpnRecords.filter(v => v.type === "Paid").length;
+  $("totalNotifications").textContent = notificationRecords.length;
+}
+
+/* VPN TABLE */
+function renderVPNs() {
+  const table = $("vpnTable");
+
+  if (!vpnRecords.length) {
+    table.innerHTML = '<tr><td colspan="5">Hakuna VPN bado.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = vpnRecords.map(v => `
+    <tr>
+      <td>${escapeHTML(v.name)}</td>
+      <td>${escapeHTML(v.type)}</td>
+      <td>TSh ${Number(v.price || 0).toLocaleString()}</td>
+      <td>
+        <span class="status ${v.is_active ? "" : "off"}">
+          ${v.is_active ? "Active" : "Inactive"}
+        </span>
+      </td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-light" data-action="edit-vpn" data-id="${escapeHTML(v.id)}">Edit</button>
+          <button class="btn btn-red" data-action="delete-vpn" data-id="${escapeHTML(v.id)}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+/* VPN IMAGE UPLOAD */
+async function uploadVPNImage(file) {
+  if (!file) return null;
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Chagua picha halali.");
+  }
+
+  const extension = file.name.split(".").pop().replace(/[^a-zA-Z0-9]/g, "");
+  const path = `${Date.now()}-${crypto.randomUUID()}.${extension || "jpg"}`;
+
+  const {error} = await db.storage
+    .from("vpn-assets")
+    .upload(path, file, {
+      cacheControl:"3600",
+      upsert:false
+    });
+
+  if (error) throw error;
+
+  const {data} = db.storage
+    .from("vpn-assets")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
+/* SAVE VPN */
+$("vpnForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const button = $("saveVPN");
+  setLoading(button, true, "SAVE VPN");
+
+  try {
+    const id = $("vpnId").value;
+    let imageURL = $("vpnImageUrl").value.trim();
+
+    const file = $("vpnImage").files[0];
+
+    if (file) {
+      imageURL = await uploadVPNImage(file);
+    }
+
+    const payload = {
+      name: $("vpnName").value.trim(),
+      type: $("vpnType").value,
+      category: $("vpnCategory").value.trim() || "General",
+      platform: $("vpnPlatform").value,
+      price: Number($("vpnPrice").value || 0),
+      description: $("vpnDescription").value.trim(),
+      image_url: imageURL || null,
+      download_url: $("vpnDownload").value.trim(),
+      is_active: $("vpnActive").checked
+    };
+
+    if (payload.type === "Free") payload.price = 0;
+
+    if (id) {
+      const {error} = await db.from("vpns").update(payload).eq("id", id);
+      if (error) throw error;
+      toast("VPN imehaririwa.");
+    } else {
+      const {error} = await db.from("vpns").insert(payload);
+      if (error) throw error;
+      toast("VPN mpya imeongezwa.");
+    }
+
+    resetVPNForm();
+    await loadVPNs();
+
+  } catch (error) {
+    toast("Imeshindikana: " + error.message);
+  } finally {
+    setLoading(button, false, "SAVE VPN");
+  }
+});
+
+function resetVPNForm() {
+  $("vpnForm").reset();
+  $("vpnId").value = "";
+  $("vpnPrice").value = "0";
+  $("vpnActive").checked = true;
+  $("vpnFormTitle").textContent = "Add New VPN";
+  $("saveVPN").textContent = "SAVE VPN";
+  $("cancelEdit").classList.add("hidden");
+}
+
+$("cancelEdit").addEventListener("click", resetVPNForm);
+
+/* VPN EDIT AND DELETE */
+$("vpnTable").addEventListener("click", async e => {
+  const button = e.target.closest("button[data-action]");
+  if (!button) return;
+
+  const vpn = vpnRecords.find(v => v.id === button.dataset.id);
+  if (!vpn) return;
+
+  if (button.dataset.action === "edit-vpn") {
+    $("vpnId").value = vpn.id;
+    $("vpnName").value = vpn.name || "";
+    $("vpnType").value = vpn.type || "Free";
+    $("vpnCategory").value = vpn.category || "";
+    $("vpnPlatform").value = vpn.platform || "Android";
+    $("vpnPrice").value = vpn.price || 0;
+    $("vpnDescription").value = vpn.description || "";
+    $("vpnImageUrl").value = vpn.image_url || "";
+    $("vpnDownload").value = vpn.download_url || "";
+    $("vpnActive").checked = vpn.is_active;
+
+    $("vpnFormTitle").textContent = "Edit VPN";
+    $("saveVPN").textContent = "UPDATE VPN";
+    $("cancelEdit").classList.remove("hidden");
+
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  if (button.dataset.action === "delete-vpn") {
+    if (!confirm("Una uhakika unataka kufuta VPN hii?")) return;
+
+    const {error} = await db.from("vpns").delete().eq("id", vpn.id);
+
+    if (error) {
+      toast("Delete error: " + error.message);
+      return;
+    }
+
+    toast("VPN imefutwa.");
+    await loadVPNs();
+  }
+});
+
+/* NOTIFICATIONS */
+function renderNotifications() {
+  const table = $("notificationTable");
+
+  if (!notificationRecords.length) {
+    table.innerHTML = '<tr><td colspan="3">Hakuna notifications bado.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = notificationRecords.map(n => `
+    <tr>
+      <td>
+        <strong>${escapeHTML(n.title)}</strong><br>
+        <small>${escapeHTML(n.message)}</small>
+      </td>
+      <td>
+        <span class="status ${n.is_active ? "" : "off"}">
+          ${n.is_active ? "Active" : "Inactive"}
+        </span>
+      </td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-light" data-action="edit-notification" data-id="${escapeHTML(n.id)}">Edit</button>
+          <button class="btn btn-red" data-action="delete-notification" data-id="${escapeHTML(n.id)}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+/* SAVE NOTIFICATION */
+$("notificationForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const button = $("saveNotification");
+  setLoading(button, true, "PUBLISH NOTIFICATION");
+
+  try {
+    const id = $("notificationId").value;
+
+    const payload = {
+      title: $("notificationTitle").value.trim(),
+      message: $("notificationMessage").value.trim(),
+      is_active: $("notificationActive").checked
+    };
+
+    if (id) {
+      const {error} = await db.from("notifications").update(payload).eq("id", id);
+      if (error) throw error;
+      toast("Notification imebadilishwa.");
+    } else {
+      const {error} = await db.from("notifications").insert(payload);
+      if (error) throw error;
+      toast("Notification imechapishwa.");
+    }
+
+    resetNotificationForm();
+    await loadNotifications();
+
+  } catch (error) {
+    toast("Imeshindikana: " + error.message);
+  } finally {
+    setLoading(button, false, "PUBLISH NOTIFICATION");
+  }
+});
+
+function resetNotificationForm() {
+  $("notificationForm").reset();
+  $("notificationId").value = "";
+  $("notificationActive").checked = true;
+  $("notificationFormTitle").textContent = "Create Notification";
+  $("saveNotification").textContent = "PUBLISH NOTIFICATION";
+  $("cancelNotificationEdit").classList.add("hidden");
+}
+
+$("cancelNotificationEdit").addEventListener("click", resetNotificationForm);
+
+/* NOTIFICATION EDIT AND DELETE */
+$("notificationTable").addEventListener("click", async e => {
+  const button = e.target.closest("button[data-action]");
+  if (!button) return;
+
+  const item = notificationRecords.find(n => n.id === button.dataset.id);
+  if (!item) return;
+
+  if (button.dataset.action === "edit-notification") {
+    $("notificationId").value = item.id;
+    $("notificationTitle").value = item.title || "";
+    $("notificationMessage").value = item.message || "";
+    $("notificationActive").checked = item.is_active;
+
+    $("notificationFormTitle").textContent = "Edit Notification";
+    $("saveNotification").textContent = "UPDATE NOTIFICATION";
+    $("cancelNotificationEdit").classList.remove("hidden");
+
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  if (button.dataset.action === "delete-notification") {
+    if (!confirm("Una uhakika unataka kufuta notification hii?")) return;
+
+    const {error} = await db
+      .from("notifications")
+      .delete()
+      .eq("id", item.id);
+
+    if (error) {
+      toast("Delete error: " + error.message);
+      return;
+    }
+
+    toast("Notification imefutwa.");
+    await loadNotifications();
+  }
+});
+
+/* START */
+checkAdmin();
+</script>
+
+</body>
+</html>
