@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>YASSER TUNEL</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+:root {
+  --green:#16a36a;
+  --dark:#17251f;
+  --muted:#89948e;
+  --bg:#f7f9f7;
+  --white:#ffffff;
+  --border:#edf0ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:90px}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+.container{width:100%;max-width:650px;margin:auto;padding:20px 17px}
+
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:25px}
+.brand{display:flex;align-items:center;gap:11px}
+.profile{width:49px;height:49px;border-radius:50%;object-fit:cover;border:2px solid #d8f3e5;background:#eee}
+.brand h2{font-size:19px;font-weight:800;letter-spacing:-.7px}
+.brand p{color:var(--muted);font-size:10px;font-weight:600;margin-top:3px}
+.notification-btn{width:43px;height:43px;border-radius:14px;background:white;border:1px solid var(--border);color:var(--dark);position:relative;font-size:17px}
+.notification-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;position:absolute;top:9px;right:9px}
+.notification-dot.hidden{display:none}
+
+.hero{background:linear-gradient(125deg,#102c20,#176c48);border-radius:23px;padding:25px 22px;color:white;position:relative;overflow:hidden;margin-bottom:25px}
+.hero:after{content:"";width:190px;height:190px;border-radius:50%;background:#ffffff0c;position:absolute;right:-65px;top:-60px}
+.hero-label{display:inline-flex;align-items:center;gap:7px;background:#ffffff19;padding:7px 11px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:16px}
+.hero h1{font-size:27px;line-height:1.2;max-width:270px;margin-bottom:9px}
+.hero p{font-size:12px;color:#d2e8db;line-height:1.6;max-width:270px}
+.hero-icon{position:absolute;right:20px;bottom:22px;font-size:57px;color:#ffffff25}
+
+.search-box{display:flex;align-items:center;gap:12px;background:white;padding:15px;border:1px solid var(--border);border-radius:15px;margin-bottom:26px}
+.search-box i{color:var(--muted)}
+.search-box input{border:0;outline:0;width:100%;font-size:13px;color:var(--dark);background:transparent}
+
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.section-head h3{font-size:17px;font-weight:800}
+.section-head button{background:none;color:var(--green);font-size:12px;font-weight:700}
+.categories{display:flex;gap:10px;overflow-x:auto;padding-bottom:7px;margin-bottom:26px;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.category{white-space:nowrap;padding:11px 16px;border-radius:12px;background:white;color:#69756e;border:1px solid var(--border);font-size:12px;font-weight:700}
+.category.active{background:var(--green);color:white;border-color:var(--green)}
+
+.vpn-list{display:grid;gap:13px}
+.vpn-card{background:white;border:1px solid var(--border);padding:15px;border-radius:17px}
+.card-top{display:flex;align-items:center;gap:12px}
+.vpn-icon{width:48px;height:48px;background:#e8f7ef;color:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.vpn-info{flex:1;min-width:0}
+.vpn-info h4{font-size:14px;font-weight:800;margin-bottom:5px}
+.vpn-info p{color:var(--muted);font-size:11px}
+.tag{background:#e7f8ef;color:#138653;font-size:9px;font-weight:800;padding:6px 9px;border-radius:20px;white-space:nowrap}
+.tag.paid{background:#fff3dc;color:#b77816}
+.card-bottom{border-top:1px solid var(--border);margin-top:14px;padding-top:13px;display:flex;align-items:center;justify-content:space-between}
+.price{font-size:12px;font-weight:800}
+.price small{display:block;color:var(--muted);font-weight:500;margin-top:3px;font-size:10px}
+.view-btn{background:var(--green);color:white;padding:10px 17px;border-radius:10px;font-size:11px;font-weight:800}
+.empty{text-align:center;padding:35px 15px;background:white;border-radius:16px;color:var(--muted);font-size:13px}
+.empty i{font-size:30px;display:block;margin-bottom:12px}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.loading i{margin-right:7px;color:var(--green)}
+
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:21px;font-weight:800;margin:8px 0 20px}
+
+.notice{background:white;border:1px solid var(--border);padding:16px;border-radius:15px;margin-bottom:12px;display:flex;gap:12px}
+.notice-icon{width:39px;height:39px;border-radius:12px;background:#e7f8ef;color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notice h4{font-size:13px;margin-bottom:5px}
+.notice p{font-size:11px;color:var(--muted);line-height:1.5}
+.notice time{font-size:10px;color:#a0aaa3;display:block;margin-top:6px}
+
+.bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fffffffa;border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.nav-inner{width:100%;max-width:650px;display:flex;justify-content:space-around;padding:11px 5px 9px}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:5px;color:#9ba59e;background:none;font-size:10px;font-weight:700;min-width:60px}
+.nav-item i{font-size:18px}
+.nav-item.active{color:var(--green)}
+
+.modal{position:fixed;inset:0;background:#0008;z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.modal-content{width:100%;max-width:550px;background:white;border-radius:23px 23px 0 0;padding:25px 20px 35px;animation:slide .25s ease;max-height:85vh;overflow-y:auto}
+@keyframes slide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-close{float:right;background:#f1f4f1;width:34px;height:34px;border-radius:50%}
+.modal-content h2{font-size:20px;margin:15px 0 10px}
+.modal-content p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:17px}
+.modal-action{width:100%;padding:14px;background:var(--green);color:white;border-radius:12px;font-weight:800;margin-top:5px}
+.modal-action:disabled{cursor:not-allowed}
+footer{text-align:center;color:var(--muted);font-size:10px;margin-top:35px;padding-bottom:10px}
+footer strong{color:var(--green)}
+@media(min-width:600px){.container{padding-top:28px}}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header class="header">
+  <div class="brand">
+    <img class="profile"
+      src="https://tmpfiles.org/dl/wQAw0GZqymzm/emmyhenz_1794408284016_kr2n6j.jpg"
+      alt="Yasser Tech"
+      onerror="this.style.display='none'">
+    <div>
+      <h2>YASSER TUNEL</h2>
+      <p>POWERED BY YASSER TECH SOLUTIONS</p>
+    </div>
+  </div>
+  <button class="notification-btn" onclick="showPage('notifications')" aria-label="Notifications">
+    <i class="fa-regular fa-bell"></i>
+    <span class="notification-dot hidden" id="notificationDot"></span>
+  </button>
+</header>
+
+<main id="homePage" class="page active">
+  <section class="hero">
+    <div class="hero-label">
+      <i class="fa-solid fa-shield-halved"></i>
+      VPN COLLECTION
+    </div>
+    <h1>Your Internet.<br>Your Connection.</h1>
+    <p>Discover free and premium VPN profiles in one place.</p>
+    <i class="fa-solid fa-earth-africa hero-icon"></i>
+  </section>
+
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" id="searchInput" placeholder="Search VPN..." oninput="renderVPN()">
+  </div>
+
+  <div class="section-head"><h3>Categories</h3></div>
+  <div class="categories">
+    <button class="category active" onclick="filterCategory('All',this)">All</button>
+    <button class="category" onclick="filterCategory('Free',this)">Free VPN</button>
+    <button class="category" onclick="filterCategory('Paid',this)">Paid VPN</button>
+    <button class="category" onclick="filterCategory('Android',this)">Android</button>
+    <button class="category" onclick="filterCategory('iOS',this)">iOS</button>
+  </div>
+
+  <div class="section-head">
+    <h3 id="listTitle">Latest VPNs</h3>
+    <button onclick="filterCategory('All',document.querySelector('.category'))">View all</button>
+  </div>
+  <div id="vpnList" class="vpn-list">
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i>Loading VPNs...</div>
+  </div>
+</main>
+
+<main id="freePage" class="page">
+  <h2 class="page-title">Free VPN</h2>
+  <p style="color:#89948e;font-size:12px;margin-bottom:20px">Discover available free VPN profiles.</p>
+  <div id="freeList" class="vpn-list"></div>
+</main>
+
+<main id="paidPage" class="page">
+  <h2 class="page-title">Premium VPN</h2>
+  <p style="color:#89948e;font-size:12px;margin-bottom:20px">Explore our premium VPN collection.</p>
+  <div id="paidList" class="vpn-list"></div>
+</main>
+
+<main id="notificationsPage" class="page">
+  <h2 class="page-title">Notifications 🔔</h2>
+  <div id="notificationList">
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i>Loading notifications...</div>
+  </div>
+</main>
+
+<main id="aboutPage" class="page">
+  <h2 class="page-title">About Us</h2>
+  <div class="vpn-card" style="text-align:center;padding:28px">
+    <div class="vpn-icon" style="margin:auto"><i class="fa-solid fa-shield-halved"></i></div>
+    <h2 style="margin-top:15px">YASSER TUNEL</h2>
+    <p style="font-size:12px;color:#89948e;margin-top:8px">Powered by YASSER TECH SOLUTIONS</p>
+    <p style="font-size:12px;line-height:1.8;margin-top:20px;color:#89948e">
+      Your destination for discovering free and premium VPN profiles.
+    </p>
+  </div>
+</main>
+
+<footer>
+  © 2026 <strong>YASSER TECH SOLUTIONS</strong><br>
+  YASSER TUNEL. All rights reserved.
+</footer>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-inner">
+    <button class="nav-item active" onclick="showPage('home')"><i class="fa-solid fa-house"></i>Home</button>
+    <button class="nav-item" onclick="showPage('free')"><i class="fa-solid fa-wifi"></i>Free</button>
+    <button class="nav-item" onclick="showPage('paid')"><i class="fa-solid fa-crown"></i>Premium</button>
+    <button class="nav-item" onclick="showPage('notifications')"><i class="fa-regular fa-bell"></i>Alerts</button>
+    <button class="nav-item" onclick="showPage('about')"><i class="fa-regular fa-user"></i>About</button>
+  </div>
+</nav>
+
+<div class="modal" id="vpnModal" onclick="closeModalOutside(event)">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div style="clear:both"></div>
+    <div class="vpn-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <h2 id="modalName">VPN Name</h2>
+    <p id="modalDescription"></p>
+    <div style="background:#f6f8f6;padding:14px;border-radius:12px;margin-bottom:15px">
+      <p style="margin:0;font-size:12px"><strong>Category:</strong> <span id="modalCategory"></span></p>
+      <p style="margin:8px 0 0;font-size:12px"><strong>Platform:</strong> <span id="modalPlatform"></span></p>
+      <p style="margin:8px 0 0;font-size:12px"><strong>Price:</strong> <span id="modalPrice"></span></p>
+    </div>
+    <button class="modal-action" id="modalDownload" disabled>
+      <i class="fa-solid fa-download"></i> Download VPN
+    </button>
+  </div>
+</div>
+
+<!-- Supabase JavaScript SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ======================================
+// YASSER TUNEL - SUPABASE CONNECTION
+// ======================================
+
+const SUPABASE_URL = "https://ingqthmfyufkgtsidqfv.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_zhoDTTBXrr9Rv4f9HwLLkg_nTrpBfWv";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let vpnData = [];
+let notificationData = [];
+let selectedCategory = "All";
+
+// ======================================
+// HELPERS
+// ======================================
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[char]));
+}
+
+function normalizeType(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function formatPrice(vpn) {
+  if (normalizeType(vpn.type) === "free") return "FREE";
+
+  const amount = Number(vpn.price || 0);
+
+  if (!amount) return "Price not set";
+
+  return "TSh " + amount.toLocaleString("en-TZ");
+}
+
+function platformMatches(platform, selected) {
+  return String(platform || "")
+    .toLowerCase()
+    .split(/[,/& ]+/)
+    .includes(selected.toLowerCase());
+}
+
+function safeDownloadURL(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" ? parsed.href : "";
+  } catch {
+    return "";
+  }
+}
+
+// ======================================
+// VPN CARD
+// ======================================
+
+function createCard(vpn) {
+  const paid = normalizeType(vpn.type) === "paid";
+
+  return `
+    <article class="vpn-card">
+      <div class="card-top">
+        <div class="vpn-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <div class="vpn-info">
+          <h4>${escapeHTML(vpn.name)}</h4>
+          <p>${escapeHTML(vpn.platform || "All platforms")}</p>
+        </div>
+
+        <span class="tag ${paid ? "paid" : ""}">
+          ${paid ? "PREMIUM" : "FREE"}
+        </span>
+      </div>
+
+      <div class="card-bottom">
+        <div class="price">
+          ${escapeHTML(formatPrice(vpn))}
+          <small>${paid ? "Premium access" : "Free access"}</small>
+        </div>
+
+        <button class="view-btn" onclick="showDetails('${escapeHTML(vpn.id)}')">
+          View Details
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+// ======================================
+// LOAD VPN DATA FROM SUPABASE
+// ======================================
+
+async function loadVPNs() {
+  const list = document.getElementById("vpnList");
+
+  list.innerHTML = `
+    <div class="loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>Loading VPNs...
+    </div>
+  `;
+
+  const { data, error } = await db
+    .from("vpns")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("VPN loading error:", error);
+
+    list.innerHTML = `
+      <div class="empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Unable to load VPNs. Please check your connection.
+      </div>
+    `;
+    return;
+  }
+
+  vpnData = data || [];
+
+  renderVPN();
+  renderFreeVPN();
+  renderPaidVPN();
+}
+
+// ======================================
+// RENDER HOME VPN LIST
+// ======================================
+
+function renderVPN() {
+  const search = document.getElementById("searchInput").value
+    .trim()
+    .toLowerCase();
+
+  const filtered = vpnData.filter(vpn => {
+    const name = String(vpn.name || "").toLowerCase();
+    const platform = String(vpn.platform || "").toLowerCase();
+    const category = String(vpn.category || "").toLowerCase();
+    const description = String(vpn.description || "").toLowerCase();
+
+    const matchesSearch =
+      name.includes(search) ||
+      platform.includes(search) ||
+      category.includes(search) ||
+      description.includes(search);
+
+    let matchesCategory = true;
+
+    if (selectedCategory === "Free" || selectedCategory === "Paid") {
+      matchesCategory = normalizeType(vpn.type) === selectedCategory.toLowerCase();
+    } else if (selectedCategory === "Android" || selectedCategory === "iOS") {
+      matchesCategory = platformMatches(vpn.platform, selectedCategory);
+    }
+
+    return matchesSearch && matchesCategory;
+  });
+
+  document.getElementById("vpnList").innerHTML =
+    filtered.length
+      ? filtered.map(createCard).join("")
+      : `<div class="empty">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          No VPN found.
+        </div>`;
+
+  document.getElementById("listTitle").textContent =
+    selectedCategory === "All" ? "Latest VPNs" : selectedCategory + " VPNs";
+}
+
+// ======================================
+// CATEGORY FILTER
+// ======================================
+
+function filterCategory(category, button) {
+  selectedCategory = category;
+
+  document.querySelectorAll(".category").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  if (button) button.classList.add("active");
+
+  renderVPN();
+}
+
+// ======================================
+// FREE VPN PAGE
+// ======================================
+
+function renderFreeVPN() {
+  const items = vpnData.filter(vpn => normalizeType(vpn.type) === "free");
+
+  document.getElementById("freeList").innerHTML =
+    items.length
+      ? items.map(createCard).join("")
+      : `<div class="empty">No free VPN available.</div>`;
+}
+
+// ======================================
+// PAID VPN PAGE
+// ======================================
+
+function renderPaidVPN() {
+  const items = vpnData.filter(vpn => normalizeType(vpn.type) === "paid");
+
+  document.getElementById("paidList").innerHTML =
+    items.length
+      ? items.map(createCard).join("")
+      : `<div class="empty">No premium VPN available.</div>`;
+}
+
+// ======================================
+// VPN DETAILS
+// ======================================
+
+function showDetails(id) {
+  const vpn = vpnData.find(item => String(item.id) === String(id));
+
+  if (!vpn) return;
+
+  document.getElementById("modalName").textContent = vpn.name || "VPN";
+  document.getElementById("modalDescription").textContent =
+    vpn.description || "No description available.";
+
+  document.getElementById("modalCategory").textContent =
+    vpn.category || vpn.type || "General";
+
+  document.getElementById("modalPlatform").textContent =
+    vpn.platform || "All platforms";
+
+  document.getElementById("modalPrice").textContent = formatPrice(vpn);
+
+  const downloadButton = document.getElementById("modalDownload");
+  const downloadURL = safeDownloadURL(vpn.download_url);
+
+  if (downloadURL) {
+    downloadButton.disabled = false;
+    downloadButton.style.opacity = "1";
+    downloadButton.onclick = () => {
+      window.open(downloadURL, "_blank", "noopener,noreferrer");
+    };
+  } else {
+    downloadButton.disabled = true;
+    downloadButton.style.opacity = ".55";
+    downloadButton.onclick = null;
+  }
+
+  document.getElementById("vpnModal").classList.add("show");
+}
+
+function closeModal() {
+  document.getElementById("vpnModal").classList.remove("show");
+}
+
+function closeModalOutside(event) {
+  if (event.target.id === "vpnModal") closeModal();
+}
+
+// ======================================
+// LOAD NOTIFICATIONS FROM SUPABASE
+// ======================================
+
+async function loadNotifications() {
+  const container = document.getElementById("notificationList");
+
+  const { data, error } = await db
+    .from("notifications")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Notification loading error:", error);
+
+    container.innerHTML = `
+      <div class="empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Unable to load notifications.
+      </div>
+    `;
+
+    return;
+  }
+
+  notificationData = data || [];
+
+  document.getElementById("notificationDot")
+    .classList.toggle("hidden", notificationData.length === 0);
+
+  if (!notificationData.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <i class="fa-regular fa-bell"></i>
+        No new notifications.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = notificationData.map(notice => {
+    const date = notice.created_at
+      ? new Date(notice.created_at).toLocaleDateString()
+      : "";
+
+    return `
+      <div class="notice">
+        <div class="notice-icon">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <div>
+          <h4>${escapeHTML(notice.title)}</h4>
+          <p>${escapeHTML(notice.message)}</p>
+          <time>${escapeHTML(date)}</time>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ======================================
+// PAGE NAVIGATION
+// ======================================
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.remove("active");
+  });
+
+  document.querySelectorAll(".nav-item").forEach(n => {
+    n.classList.remove("active");
+  });
+
+  const pageMap = {
+    home: "homePage",
+    free: "freePage",
+    paid: "paidPage",
+    notifications: "notificationsPage",
+    about: "aboutPage"
+  };
+
+  const navIndex = {
+    home: 0,
+    free: 1,
+    paid: 2,
+    notifications: 3,
+    about: 4
+  };
+
+  const target = document.getElementById(pageMap[page]);
+
+  if (!target) return;
+
+  target.classList.add("active");
+
+  document.querySelectorAll(".nav-item")[navIndex[page]]
+    .classList.add("active");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ======================================
+// INITIALIZE APP
+// ======================================
+
+async function initializeApp() {
+  await Promise.all([
+    loadVPNs(),
+    loadNotifications()
+  ]);
+}
+
+initializeApp();
+
+</script>
+</body>
+</html>
